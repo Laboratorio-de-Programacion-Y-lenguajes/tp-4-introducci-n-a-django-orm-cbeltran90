@@ -125,3 +125,11 @@ class Prestamo(models.Model):
     #      o dejarlo sin default para que el test lo defina explícitamente.
 
     pass
+
+    libro = models.ForeignKey(Libro, on_delete=models.CASCADE)
+    nombre_prestatario = models.CharField(max_length=120)
+    fecha_prestamo = models.DateField(default=timezone.now)
+    fecha_devolucion = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.libro.titulo} - {self.nombre_prestatario} - {self.fecha_prestamo}"
