@@ -65,7 +65,12 @@ def libros_sin_disponibilidad():
         ).filter(activos=models.F("cantidad_total"))
     """
     # TODO: implementar con annotate + F expression + filter
-    raise NotImplementedError
+    from django.db.models import Count, Q
+    from django.db.models import F
+    
+    return Libro.objects.annotate(
+        activos=Count("prestamo", filter=Q(prestamo__fecha_devolucion__isnull=True))
+    ).filter(activos=F("cantidad_total"))
 
 
 def top_n_libros_mas_prestados(n: int):
