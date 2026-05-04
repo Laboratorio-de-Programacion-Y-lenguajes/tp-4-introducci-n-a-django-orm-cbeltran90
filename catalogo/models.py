@@ -17,12 +17,20 @@ class Autor(models.Model):
     # nombre   → CharField (max_length a elección)
     # email    → EmailField (unique=True)
     # biografia → TextField (blank=True para hacerlo opcional)
-
-    pass
-
+    
     # Opcional: definir __str__ para que sea legible en el admin y en el shell
     # def __str__(self) -> str:
     #     return self.nombre
+
+    nombre = models.CharField(max_length=120)
+    email = models.EmailField(unique=True)
+    biografia = models.TextField(blank=True)  # blank=True permite que quede vacío en formularios/admin
+
+    def __str__(self):
+        return self.nombre
+
+    pass
+
 
 
 class Categoria(models.Model):
@@ -37,6 +45,10 @@ class Categoria(models.Model):
 
     # def __str__(self) -> str:
     #     return self.nombre
+    nombre = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nombre
 
 
 class Libro(models.Model):
@@ -57,6 +69,16 @@ class Libro(models.Model):
     # ¿Qué pasa si eliminás un autor que tiene libros? (PROTECT vs CASCADE)
     # ¿Por qué isbn debe ser único?
 
+    titulo = models.CharField(max_length=200)
+    isbn = models.CharField(max_length=13, unique=True)
+    fecha_publicacion = models.DateField()
+    cantidad_total = models.PositiveIntegerField(default=1)
+    autor = models.ForeignKey(Autor, on_delete=models.PROTECT)
+    categorias = models.ManyToManyField(Categoria)
+
+    def __str__(self):
+        return self.titulo
+
     pass
 
     def prestamos_activos(self) -> int:
@@ -68,7 +90,7 @@ class Libro(models.Model):
         # TODO: implementar con ORM usando filter sobre los préstamos relacionados
         # Pista: self.prestamo_set.filter(fecha_devolucion__isnull=True).count()
         #        (o el related_name que hayas definido en Prestamo.libro)
-        raise NotImplementedError
+        return self.prestamo_set.filter(fecha_devolucion__isnull=True).count()
 
     def disponibles(self) -> int:
         """
@@ -76,12 +98,12 @@ class Libro(models.Model):
         cantidad_total - prestamos_activos()
         """
         # TODO: implementar
-        raise NotImplementedError
+        return self.cantidad_total - self.prestamos_activos()
 
     def tiene_disponibles(self) -> bool:
         """Retorna True si hay al menos una copia disponible."""
         # TODO: implementar
-        raise NotImplementedError
+        return self.disponibles() > 0
 
 
 class Prestamo(models.Model):
@@ -103,3 +125,11 @@ class Prestamo(models.Model):
     #      o dejarlo sin default para que el test lo defina explícitamente.
 
     pass
+
+    libro = models.ForeignKey(Libro, on_delete=models.CASCADE)
+    nombre_prestatario = models.CharField(max_length=120)
+    fecha_prestamo = models.DateField(default=timezone.now)
+    fecha_devolucion = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.libro.titulo} - {self.nombre_prestatario} - {self.fecha_prestamo}"
