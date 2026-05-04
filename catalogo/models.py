@@ -17,12 +17,20 @@ class Autor(models.Model):
     # nombre   → CharField (max_length a elección)
     # email    → EmailField (unique=True)
     # biografia → TextField (blank=True para hacerlo opcional)
-
-    pass
-
+    
     # Opcional: definir __str__ para que sea legible en el admin y en el shell
     # def __str__(self) -> str:
     #     return self.nombre
+    
+    nombre = models.CharField(max_length=120)
+    email = models.EmailField(unique=True)
+    biografia = models.TextField(blank=True)  # blank=True permite que quede vacío en formularios/admin
+
+    def __str__(self):
+        return self.nombre
+
+    pass
+
 
 
 class Categoria(models.Model):
