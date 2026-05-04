@@ -88,4 +88,6 @@ def top_n_libros_mas_prestados(n: int):
                      .order_by("-total_prestamos")[:n]
     """
     # TODO: implementar con annotate + order_by + slicing
-    raise NotImplementedError
+    from django.db.models import Count
+    
+    return Libro.objects.annotate(total_prestamos=Count("prestamo")).order_by("-total_prestamos")[:n]
